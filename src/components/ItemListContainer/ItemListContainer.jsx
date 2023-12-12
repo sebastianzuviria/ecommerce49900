@@ -56,7 +56,7 @@ const ItemListContainer = ({ greeting }) => {
     }
 
     return (
-        <div>
+        <div onClick={() => console.log('container')}>
             <h1>{greeting}</h1>
             <ItemList products={products}/>
         </div>
