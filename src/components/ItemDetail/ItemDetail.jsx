@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useCart } from '../../context/CartContext'
 
 const InputCount = ({ onAdd, stock, initial= 1 }) => {
     const [count, setCount] = useState(initial)
@@ -43,21 +44,20 @@ const ButtonCount = ({ onAdd, stock, initial = 1 }) => {
 }
 
 
-const ItemDetail = ({ id, name, category, img, price, stock, description}) => {
+const ItemDetail = ({ id, name, category, img, price, stock, description }) => {
     const [inputType, setInputType] = useState('button')
 
-    const [quantity, setQuantity] = useState(0)
+    const { addItem, isInCart } = useCart()
+
 
     const ItemCount = inputType === 'input' ? InputCount : ButtonCount
 
-    const handleOnAdd = (count) => {
+    const handleOnAdd = (quantity) => {
         const objProductToAdd = {
-            id, name, price, count
+            id, name, price, quantity
         }
-        console.log(objProductToAdd)
-        console.log('agregue al carrito: ', count)
-
-        setQuantity(count)
+        addItem(objProductToAdd)
+        console.log('agregue al carrito: ', quantity)
     }
 
     return (
@@ -86,7 +86,7 @@ const ItemDetail = ({ id, name, category, img, price, stock, description}) => {
             </section>           
             <footer>
                 {
-                    quantity === 0 ? (
+                    !isInCart(id) ? (
                         <ItemCount onAdd={handleOnAdd} stock={stock}/>
                     ) : (
                         <Link to='/cart'>Finalizar compra</Link>
