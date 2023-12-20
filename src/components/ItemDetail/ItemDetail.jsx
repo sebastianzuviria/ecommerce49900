@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
+import { useNotification } from '../../notification/NotificationService'
 
 const InputCount = ({ onAdd, stock, initial= 1 }) => {
     const [count, setCount] = useState(initial)
@@ -49,6 +50,7 @@ const ItemDetail = ({ id, name, category, img, price, stock, description }) => {
 
     const { addItem, isInCart } = useCart()
 
+    const { showNotification } = useNotification()
 
     const ItemCount = inputType === 'input' ? InputCount : ButtonCount
 
@@ -57,7 +59,7 @@ const ItemDetail = ({ id, name, category, img, price, stock, description }) => {
             id, name, price, quantity
         }
         addItem(objProductToAdd)
-        console.log('agregue al carrito: ', quantity)
+        showNotification('warning', `Se agrego correctamente ${quantity} ${name}`)
     }
 
     return (
@@ -98,3 +100,4 @@ const ItemDetail = ({ id, name, category, img, price, stock, description }) => {
 }
 
 export default ItemDetail
+

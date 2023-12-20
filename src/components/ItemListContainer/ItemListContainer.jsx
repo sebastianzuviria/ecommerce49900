@@ -1,13 +1,20 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, memo } from "react"
 import { getProducts, getProductsByCategory } from "../../asyncMock"
 import ItemList from "../ItemList/ItemList"
 import { useParams } from "react-router-dom"
+import { useNotification } from "../../notification/NotificationService"
+
+const ItemListMemo = memo(ItemList)
 
 const ItemListContainer = ({ greeting }) => {
     const [loading, setLoading] = useState(true)
     const [products, setProducts] = useState([])
 
+    const [newRender, setNewRender] = useState(false)
+
     const { categoryId } = useParams()
+
+    const { showNotification } = useNotification()
 
     useEffect(() => {
         setLoading(true)
@@ -20,36 +27,19 @@ const ItemListContainer = ({ greeting }) => {
             })
             .catch(error => {
                 console.log(error)
+                showNotification('error',`Hubo un error obteniendo los productos, intente nuevamente en unos minutos.`)
             })
             .finally(() => {
                 setLoading(false)
             })
-
-        // if(categoryId) {
-        //     getProductsByCategory(categoryId)
-        //         .then(response => {
-        //             setProducts(response)
-        //         })
-        //         .catch(error => {
-        //             console.log(error)
-        //         })
-        //         .finally(() => {
-        //             setLoading(false)
-        //         })
-        // } else {
-        //     getProducts()
-        //         .then(response => {
-        //             setProducts(response)
-        //         }) 
-        //         .catch(error => {
-        //             console.log(error)
-        //         })
-        //         .finally(() => {
-        //             setLoading(false)
-        //         })
-        // }
     }, [categoryId])
     console.log(products)
+
+    useEffect(() => {
+        setTimeout(() => {
+            setNewRender(true)
+        },3000)
+    }, [])
 
     if(loading) {
         return <h1>Loading...</h1>
@@ -58,7 +48,7 @@ const ItemListContainer = ({ greeting }) => {
     return (
         <div onClick={() => console.log('container')}>
             <h1>{greeting}</h1>
-            <ItemList products={products}/>
+            <ItemListMemo products={products}/>
         </div>
     )
 }
