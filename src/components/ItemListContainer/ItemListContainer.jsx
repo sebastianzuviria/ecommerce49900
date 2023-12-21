@@ -1,8 +1,10 @@
 import { useState, useEffect, memo } from "react"
-import { getProducts, getProductsByCategory } from "../../asyncMock"
+// import { getProducts, getProductsByCategory } from "../../asyncMock"
 import ItemList from "../ItemList/ItemList"
 import { useParams } from "react-router-dom"
 import { useNotification } from "../../notification/NotificationService"
+import { getDocs, collection, query, where } from "firebase/firestore"
+import { db } from "../../services/firebase/firebaseConfig"
 
 const ItemListMemo = memo(ItemList)
 
@@ -10,43 +12,57 @@ const ItemListContainer = ({ greeting }) => {
     const [loading, setLoading] = useState(true)
     const [products, setProducts] = useState([])
 
-    const [newRender, setNewRender] = useState(false)
-
     const { categoryId } = useParams()
 
     const { showNotification } = useNotification()
 
     useEffect(() => {
         setLoading(true)
-        
-        const asyncFunction = categoryId ? getProductsByCategory : getProducts
 
-        asyncFunction(categoryId)
-            .then(response => {
-                setProducts(response)
+        const collectionRef = categoryId 
+                ? query(collection(db, 'products'), where('category', '==', categoryId))
+                : collection(db, 'products')
+
+        getDocs(collectionRef)
+            .then(querySnapshot => {
+                console.log(querySnapshot)
+
+                const productsAdapted = querySnapshot.docs.map(doc => {
+                    const fields = doc.data()
+                    return { id: doc.id, ...fields }
+                })
+
+                setProducts(productsAdapted)
             })
-            .catch(error => {
-                console.log(error)
-                showNotification('error',`Hubo un error obteniendo los productos, intente nuevamente en unos minutos.`)
+            .catch(() => {
+                showNotification('error', 'Hubo un error')
             })
             .finally(() => {
                 setLoading(false)
             })
-    }, [categoryId])
-    console.log(products)
+        // setLoading(true)
+        
+        // const asyncFunction = categoryId ? getProductsByCategory : getProducts
 
-    useEffect(() => {
-        setTimeout(() => {
-            setNewRender(true)
-        },3000)
-    }, [])
+        // asyncFunction(categoryId)
+        //     .then(response => {
+        //         setProducts(response)
+        //     })
+        //     .catch(error => {
+        //         console.log(error)
+        //         showNotification('error',`Hubo un error obteniendo los productos, intente nuevamente en unos minutos.`)
+        //     })
+        //     .finally(() => {
+        //         setLoading(false)
+        //     })
+    }, [categoryId])
 
     if(loading) {
         return <h1>Loading...</h1>
     }
 
     return (
-        <div onClick={() => console.log('container')}>
+        <div>
             <h1>{greeting}</h1>
             <ItemListMemo products={products}/>
         </div>

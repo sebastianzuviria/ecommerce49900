@@ -59,7 +59,7 @@ const ItemDetail = ({ id, name, category, img, price, stock, description }) => {
             id, name, price, quantity
         }
         addItem(objProductToAdd)
-        showNotification('warning', `Se agrego correctamente ${quantity} ${name}`)
+        showNotification('success', `Se agrego correctamente ${quantity} ${name}`)
     }
 
     return (
